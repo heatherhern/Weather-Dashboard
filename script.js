@@ -12,6 +12,8 @@ const UVIndex = document.getElementById("UV-index");
 let city = $("#city-input").val();
 const APIKey = "&appid=65c10c5579f42681f3f589f30c251f3f"
 
+let searchHistory = JSON.parse(localStorage.getItem("search")) || [];
+
 
 // let date = new Date();
 
@@ -26,27 +28,22 @@ $("#search-button").on("click", function () {
     $('#forecast-section').removeClass('hide');
     $('#forecast-section').addClass('show');
 
+    searchHistory.push(city);
+        localStorage.setItem("search",JSON.stringify(searchHistory));
+        renderSearchHistory();
+
     $.ajax({
         url: queryUrl,
         method: "GET"
-    }).then(function(response) {
+    }).then(function (response) {
 
+        console.log(response)
+        let tempF = (response.main.temp - 273.15) * 1.80 + 32;
 
+        getCurrentConditions(response);
+        getCurrentForecast(response);
 
-
-            console.log(response)
-            // console.log(response.name)
-            // console.log(response.weather[0].icon)
-            let tempF = (response.main.temp - 273.15) * 1.80 + 32;
-            // console.log(Math.floor(tempF))
-            // console.log(response.main.humidity)
-            // console.log(response.wind.speed)
-
-            getCurrentConditions(response);
-            getCurrentForecast(response);
-            makeList();
-
-        })
+    })
 });
 
 
@@ -55,8 +52,8 @@ function makeList() {
     $(".list").append(listItem);
 }
 
-function getCurrentConditions (response) {
-    const currentDate = new Date(response.dt*1000);
+function getCurrentConditions(response) {
+    const currentDate = new Date(response.dt * 1000);
     console.log(currentDate);
     const day = currentDate.getDate();
     const month = currentDate.getMonth() + 1;
@@ -73,8 +70,8 @@ function getCurrentConditions (response) {
     windSpeed.innerHTML = "Wind Speed: " + response.wind.speed + " mph";
 
     let weatherPic = response.weather[0].icon;
-            currentPicEl.setAttribute("src","https://openweathermap.org/img/wn/" + weatherPic + "@2x.png");
-            currentPicEl.setAttribute("alt",response.weather[0].description);
+    currentPicEl.setAttribute("src", "https://openweathermap.org/img/wn/" + weatherPic + "@2x.png");
+    currentPicEl.setAttribute("alt", response.weather[0].description);
 
     // let lat = response.coord.lat;
     // let lon = response.coord.lon;
@@ -90,33 +87,33 @@ function getCurrentConditions (response) {
 }
 
 
-function getCurrentForecast (response) {
+function getCurrentForecast(response) {
     let city = $("#city-input").val();
     $.ajax({
         url: "https://api.openweathermap.org/data/2.5/forecast?q=" + city + APIKey,
         method: "GET"
-    }).then(function(response){
+    }).then(function (response) {
         console.log(response);
         const forecastEls = document.querySelectorAll(".forecast");
-    
 
-        for (i=0; i<forecastEls.length; i++) {
+
+        for (i = 0; i < forecastEls.length; i++) {
             forecastEls[i].innerHTML = "";
-            const forecastIndex = i*8 + 4;
+            const forecastIndex = i * 8 + 4;
             const forecastDate = new Date(response.list[forecastIndex].dt * 1000);
             const forecastDay = forecastDate.getDate() + 1;
             const forecastMonth = forecastDate.getMonth();
             const forecastYear = forecastDate.getFullYear();
             const forecastDateEl = document.createElement("p");
 
-            forecastDateEl.setAttribute("class","mt-3 mb-0 forecast-date");
+            forecastDateEl.setAttribute("class", "mt-3 mb-0 forecast-date");
             forecastDateEl.innerHTML = forecastMonth + "/" + forecastDay + "/" + forecastYear;
             forecastEls[i].append(forecastDateEl);
 
             const forecastWeatherEl = document.createElement("img");
 
-            forecastWeatherEl.setAttribute("src","https://openweathermap.org/img/wn/" + response.list[forecastIndex].weather[0].icon + "@2x.png");
-            forecastWeatherEl.setAttribute("alt",response.list[forecastIndex].weather[0].description);
+            forecastWeatherEl.setAttribute("src", "https://openweathermap.org/img/wn/" + response.list[forecastIndex].weather[0].icon + "@2x.png");
+            forecastWeatherEl.setAttribute("alt", response.list[forecastIndex].weather[0].description);
             forecastEls[i].append(forecastWeatherEl);
 
             const forecastTempEl = document.createElement("p");
@@ -125,7 +122,7 @@ function getCurrentForecast (response) {
             forecastEls[i].append(forecastTempEl);
 
             const forecastHumidityEl = document.createElement("p");
-            
+
             forecastHumidityEl.innerHTML = "Humidity: " + response.list[forecastIndex].main.humidity + "%";
             forecastEls[i].append(forecastHumidityEl);
 
@@ -133,10 +130,37 @@ function getCurrentForecast (response) {
 
             windWeatherEl.innerHTML = "Wind: " + (response.list[0].wind.speed) + " mph";
             forecastEls[i].append(windWeatherEl);
-            }
-        })
-    };  
+        }
+    })
+};
 
-    function k2f(K) {
-        return Math.floor((K - 273.15) *1.8 +32);
+
+function renderSearchHistory() {
+    history.innerHTML = "";
+    for (let i = 0; i < searchHistory.length; i++) {
+        const historyItem = document.createElement("input");
+        // <input type="text" readonly class="form-control-plaintext" id="staticEmail" value="email@example.com"></input>
+        historyItem.setAttribute("type", "text");
+        historyItem.setAttribute("readonly", true);
+        historyItem.setAttribute("class", "form-control d-block bg-white");
+        historyItem.setAttribute("value", searchHistory[i]);
+        historyItem.addEventListener("click", function () {
+            getCurrentForecast(historyItem.value);
+        })
+        history.append(historyItem);
     }
+}
+
+renderSearchHistory();
+    if (searchHistory.length > 0) {
+        getCurrentForecast(searchHistory[searchHistory.length - 1]);
+    }
+
+function k2f(K) {
+    return Math.floor((K - 273.15) * 1.8 + 32);
+}
+
+clearBtn.addEventListener("click",function() {
+    searchHistory = [];
+    renderSearchHistory();
+})
