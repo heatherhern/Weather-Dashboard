@@ -7,5 +7,5 @@ OpenWeatherMap API, JavaScript, JQuery, html, css
 # View the Deployed Application 
 https://heatherhern.github.io/Weather-Dashboard/
 
-!(/Assets/screenshot.png)
+![Screenshot of App](/Assets/Screenshot.jpg?raw=true)
 
