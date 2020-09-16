@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
         integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
     <link rel="stylesheet" href="style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 </head>
 
 <body>
@@ -19,10 +20,10 @@
             <div class="col-4 bg-light">
                 <p class="search-header">Find a City</p>
                 <div class="input-group mb-3">
-                    <input type="text" class="form-control" placeholder="Search for a city"
+                    <input type="text" id="city-input" class="form-control" placeholder="Search for a city"
                         aria-label="Recipient's username" aria-describedby="button-addon2">
                     <div class="input-group-append">
-                        <button class="btn btn-outline-secondary" type="button" id="button-addon2">Search</button>
+                        <button class="btn btn-outline-secondary" type="button" id="search-button">Search</button>
                     </div>
                 </div>
                 <button class="btn btn-outline-secondary" type="button" id="clear-history">Clear History</button>
@@ -30,7 +31,7 @@
             </div>
 
 
-            <div class="col-8">
+            <div id="forecast-section" class="col-8 hide">
                 <div class="border border-success">
                     <div class="row">
                         <div class="col-12">
@@ -78,6 +79,7 @@
 
         </div>
     </div>
+    <script src="script.js"></script>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
         integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
         crossorigin="anonymous"></script>
