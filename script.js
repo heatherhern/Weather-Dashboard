@@ -10,14 +10,31 @@ const humidity = document.getElementById("humidity");
 const windSpeed = document.getElementById("wind-speed");
 const UVIndex = document.getElementById("UV-index");
 
-let city = $("#city-input").val();
-console.log(city);
-let date = new Date();
-console.log(date);
 
+let date = new Date();
+
+    console.log(date);
 
 $("#search-button").on("click", function() {
+    let city = $("#city-input").val();
+    const APIKey = "65c10c5579f42681f3f589f30c251f3f"
+    const queryUrl = "https://api.openweathermap.org/data/2.5/weather?q=" + city + APIKey;
+    console.log(city);
+
     $('#forecast-section').removeClass('hide');
     $('#forecast-section').addClass('show');
 
-})
+    $.ajax({
+        url: queryUrl,
+        method: "GET"
+    })
+    .then(function (response){
+    
+        console.log(response)
+    
+        console.log(response.name)
+        console.log(response.weather[0].icon)
+
+
+    })
+});
