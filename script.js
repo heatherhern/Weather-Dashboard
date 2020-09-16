@@ -9,10 +9,13 @@ const humidity = document.getElementById("humidity");
 const windSpeed = document.getElementById("wind-speed");
 const UVIndex = document.getElementById("UV-index");
 
+let city = $("#city-input").val();
+const APIKey = "&appid=65c10c5579f42681f3f589f30c251f3f"
 
-let date = new Date();
 
-console.log(date);
+// let date = new Date();
+
+// console.log(date);
 
 $("#search-button").on("click", function () {
     let city = $("#city-input").val();
@@ -27,6 +30,9 @@ $("#search-button").on("click", function () {
         url: queryUrl,
         method: "GET"
     }).then(function(response) {
+
+
+
 
             console.log(response)
             // console.log(response.name)
@@ -50,20 +56,25 @@ function makeList() {
 }
 
 function getCurrentConditions (response) {
+    const currentDate = new Date(response.dt*1000);
+    console.log(currentDate);
+    const day = currentDate.getDate();
+    const month = currentDate.getMonth() + 1;
+    const year = currentDate.getFullYear();
 
-    cityName.innerHTML = response.name;
+    cityName.innerHTML = response.name + " (" + month + "/" + day + "/" + year + ") ";
 
     let tempF = (response.main.temp - 273.15) * 1.80 + 32;
     tempF = Math.floor(tempF);
-    temperature.innerHTML = tempF
+    temperature.innerHTML = "Temp: " + tempF
 
-    humidity.innerHTML = response.main.humidity + "%";
+    humidity.innerHTML = "Humidity: " + response.main.humidity + "%";
 
-    windSpeed.innerHTML = response.wind.speed + "MPH";
+    windSpeed.innerHTML = "Wind Speed: " + response.wind.speed + " mph";
 
     let weatherPic = response.weather[0].icon;
             currentPicEl.setAttribute("src","https://openweathermap.org/img/wn/" + weatherPic + "@2x.png");
-            currentPicEl.setAttribute("alt",response.data.weather[0].description);
+            currentPicEl.setAttribute("alt",response.weather[0].description);
 
     // let lat = response.coord.lat;
     // let lon = response.coord.lon;
@@ -80,35 +91,52 @@ function getCurrentConditions (response) {
 
 
 function getCurrentForecast (response) {
+    let city = $("#city-input").val();
     $.ajax({
         url: "https://api.openweathermap.org/data/2.5/forecast?q=" + city + APIKey,
         method: "GET"
-    }).then(function (response){
-    
-        let cityID = response.id;
+    }).then(function(response){
         console.log(response);
         const forecastEls = document.querySelectorAll(".forecast");
+    
+
         for (i=0; i<forecastEls.length; i++) {
             forecastEls[i].innerHTML = "";
             const forecastIndex = i*8 + 4;
             const forecastDate = new Date(response.list[forecastIndex].dt * 1000);
-            const forecastDay = forecastDate.getDate();
-            const forecastMonth = forecastDate.getMonth() + 1;
+            const forecastDay = forecastDate.getDate() + 1;
+            const forecastMonth = forecastDate.getMonth();
             const forecastYear = forecastDate.getFullYear();
             const forecastDateEl = document.createElement("p");
+
             forecastDateEl.setAttribute("class","mt-3 mb-0 forecast-date");
             forecastDateEl.innerHTML = forecastMonth + "/" + forecastDay + "/" + forecastYear;
             forecastEls[i].append(forecastDateEl);
+
             const forecastWeatherEl = document.createElement("img");
-            forecastWeatherEl.setAttribute("src","https://openweathermap.org/img/wn/" + response.data.list[forecastIndex].weather[0].icon + "@2x.png");
+
+            forecastWeatherEl.setAttribute("src","https://openweathermap.org/img/wn/" + response.list[forecastIndex].weather[0].icon + "@2x.png");
             forecastWeatherEl.setAttribute("alt",response.list[forecastIndex].weather[0].description);
             forecastEls[i].append(forecastWeatherEl);
+
             const forecastTempEl = document.createElement("p");
+
             forecastTempEl.innerHTML = "Temp: " + k2f(response.list[forecastIndex].main.temp) + " &#176F";
             forecastEls[i].append(forecastTempEl);
+
             const forecastHumidityEl = document.createElement("p");
+            
             forecastHumidityEl.innerHTML = "Humidity: " + response.list[forecastIndex].main.humidity + "%";
             forecastEls[i].append(forecastHumidityEl);
+
+            const windWeatherEl = document.createElement("p");
+
+            windWeatherEl.innerHTML = "Wind: " + (response.list[0].wind.speed) + " mph";
+            forecastEls[i].append(windWeatherEl);
             }
         })
     };  
+
+    function k2f(K) {
+        return Math.floor((K - 273.15) *1.8 +32);
+    }
